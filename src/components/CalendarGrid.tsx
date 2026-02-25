@@ -1,4 +1,4 @@
-import { addMonths, endOfMonth, endOfWeek, format, isSameMonth, startOfMonth, startOfWeek, addDays } from "date-fns";
+import { addMonths, addDays, endOfMonth, endOfWeek, format, isSameMonth, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import type { Records, ISODate } from "../app/types";
 import { watchById } from "../app/watches";
 
@@ -19,6 +19,14 @@ export function CalendarGrid({
   const days: Date[] = [];
   for (let d = gridStart; d <= gridEnd; d = addDays(d, 1)) {
     days.push(d);
+  }
+
+  // 이번 달에 기록된 날짜 · 시계 풀네임 목록 (날짜순)
+  const monthRecords: { iso: ISODate; watchName: string }[] = [];
+  for (let d = monthStart; d <= monthEnd; d = addDays(d, 1)) {
+    const iso = format(d, "yyyy-MM-dd") as ISODate;
+    const watch = watchById(records[iso]);
+    if (watch) monthRecords.push({ iso, watchName: watch.name });
   }
 
   const monthLabel = format(monthDate, "yyyy년 M월");
@@ -83,12 +91,27 @@ export function CalendarGrid({
               </div>
 
               <div className="dayBottom">
-                {watch ? <span className="pill" title={watch.name}>{watch.short}</span> : <span className="pill empty">—</span>}
+                {watch ? <span className="dayCheck" title={watch.name}>✓</span> : <span className="dayCheck empty">—</span>}
               </div>
             </button>
           );
         })}
       </div>
+
+      {monthRecords.length > 0 && (
+        <div className="calendarSummary">
+          <div className="calendarSummaryTitle">이번 달 기록</div>
+          <ul className="calendarSummaryList">
+            {monthRecords.map(({ iso, watchName }) => (
+              <li key={iso} className="calendarSummaryItem">
+                <span className="calendarSummaryDate">{format(parseISO(iso), "M월 d일")}</span>
+                <span className="calendarSummarySep"> · </span>
+                <span className="calendarSummaryWatch">{watchName}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
