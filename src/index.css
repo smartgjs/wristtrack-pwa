@@ -79,6 +79,7 @@ a { color: inherit; }
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 12px;
+  min-width: 0; /* 모바일에서 가로 스크롤 방지, 요일과 칸 정렬 유지 */
 }
 
 .calendarHeader {
@@ -113,6 +114,7 @@ a { color: inherit; }
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
   margin-bottom: 8px;
+  min-width: 0;
 }
 
 .dowCell {
@@ -125,6 +127,7 @@ a { color: inherit; }
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
+  min-width: 0; /* 그리드가 부모 너비를 넘지 않도록 */
 }
 
 .dayCell {
@@ -133,6 +136,7 @@ a { color: inherit; }
   border-radius: 14px;
   padding: 10px 8px;
   min-height: 72px;
+  min-width: 0; /* 셀이 1fr 비율을 지키고 내용 때문에 넓어지지 않도록 */
   text-align: left;
   color: var(--text);
   cursor: pointer;
@@ -160,6 +164,7 @@ a { color: inherit; }
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
+  min-width: 0; /* flex 자식이 줄어들 수 있게 */
 }
 
 .pill {
@@ -418,6 +423,7 @@ a { color: inherit; }
 
 /* Mobile tweaks */
 @media (max-width: 520px) {
+  .dowRow { gap: 6px; }
   .grid { gap: 6px; }
   .dayCell { min-height: 66px; padding: 10px 6px; }
   .pill { font-size: 11px; padding: 3px 7px; }
