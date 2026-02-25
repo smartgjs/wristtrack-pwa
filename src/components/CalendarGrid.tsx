@@ -1,4 +1,4 @@
-import { addMonths, addDays, endOfMonth, endOfWeek, format, isSameMonth, parseISO, startOfMonth, startOfWeek } from "date-fns";
+import { addDays, endOfMonth, endOfWeek, format, isSameMonth, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import type { Records, ISODate } from "../app/types";
 import { watchById } from "../app/watches";
 
@@ -6,10 +6,14 @@ export function CalendarGrid({
   monthDate,
   records,
   onPickDate,
+  onPrevMonth,
+  onNextMonth,
 }: {
-  monthDate: Date; // any date within the month
+  monthDate: Date;
   records: Records;
   onPickDate: (isoDate: ISODate) => void;
+  onPrevMonth: () => void;
+  onNextMonth: () => void;
 }) {
   const monthStart = startOfMonth(monthDate);
   const monthEnd = endOfMonth(monthDate);
@@ -40,8 +44,8 @@ export function CalendarGrid({
           <button
             type="button"
             className="ghostBtn"
-            onClick={() => onPickDate(format(addMonths(monthDate, -1), "yyyy-MM-01") as ISODate)}
-            title="이전 달로 이동(해당 달 1일 선택)"
+            onClick={onPrevMonth}
+            title="이전 달"
           >
             ◀
           </button>
@@ -56,8 +60,8 @@ export function CalendarGrid({
           <button
             type="button"
             className="ghostBtn"
-            onClick={() => onPickDate(format(addMonths(monthDate, 1), "yyyy-MM-01") as ISODate)}
-            title="다음 달로 이동(해당 달 1일 선택)"
+            onClick={onNextMonth}
+            title="다음 달"
           >
             ▶
           </button>

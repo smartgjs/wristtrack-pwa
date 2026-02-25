@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import "./index.css";
 import type { ISODate, Records } from "./app/types";
 import { loadRecords, saveRecords, setRecord, deleteRecord } from "./app/storage";
@@ -6,7 +6,7 @@ import { Tabs } from "./components/Tabs";
 import { CalendarGrid } from "./components/CalendarGrid";
 import { DayPickerSheet } from "./components/DayPickerSheet";
 import { StatsView } from "./components/StatsView";
-import { parseISO, isValid, format, startOfMonth } from "date-fns";
+import { addMonths, parseISO, isValid, format, startOfMonth } from "date-fns";
 
 type TabKey = "calendar" | "stats";
 
@@ -21,12 +21,8 @@ export default function App() {
 
   const [pickedDate, setPickedDate] = useState<ISODate | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-
-  // 캘린더가 표시할 "현재 월"은 pickedDate가 있으면 그 달, 없으면 오늘 달
-  const monthDate = useMemo(() => {
-    const base = pickedDate ? isoToDate(pickedDate) : new Date();
-    return startOfMonth(base);
-  }, [pickedDate]);
+  // 캘린더에 보여줄 달 (화살표로만 변경, 날짜 탭과 무관)
+  const [viewMonth, setViewMonth] = useState(() => startOfMonth(new Date()));
 
   useEffect(() => {
     saveRecords(records);
@@ -51,11 +47,13 @@ export default function App() {
     setRecordsState((prev) => deleteRecord(pickedDate, prev));
   };
 
-  // month nav 버튼이 pickedDate를 "yyyy-MM-01" 형태로 주기 때문에, 시트를 바로 열지 않고 월만 바꾸는 용도도 필요
-  // CalendarGrid에서 onPickDate를 공유하므로, 여기서 "1일 선택"이면 시트를 열지 않고 month만 바꾸도록 처리
   const handlePickFromGrid = (iso: ISODate) => {
+    setViewMonth(startOfMonth(isoToDate(iso)));
     openSheet(iso);
   };
+
+  const goPrevMonth = () => setViewMonth((m) => startOfMonth(addMonths(m, -1)));
+  const goNextMonth = () => setViewMonth((m) => startOfMonth(addMonths(m, 1)));
 
   return (
     <div className="app">
@@ -71,7 +69,13 @@ export default function App() {
 
         {tab === "calendar" ? (
           <>
-            <CalendarGrid monthDate={monthDate} records={records} onPickDate={handlePickFromGrid} />
+            <CalendarGrid
+              monthDate={viewMonth}
+              records={records}
+              onPickDate={handlePickFromGrid}
+              onPrevMonth={goPrevMonth}
+              onNextMonth={goNextMonth}
+            />
 
             <div className="footerHint mutedText">
               팁: 날짜를 탭하면 바텀시트가 열리고, 선택 즉시 저장됩니다.
