@@ -21,8 +21,10 @@ export default function App() {
 
   const [pickedDate, setPickedDate] = useState<ISODate | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  // 캘린더에 보여줄 달 (화살표로만 변경, 날짜 탭과 무관)
   const [viewMonth, setViewMonth] = useState(() => startOfMonth(new Date()));
+  // 시계가 있는 날짜: 첫 탭 = 하단에만 표시, 두 번째 탭 = 시트 열기
+  const [lastTappedDateWithWatch, setLastTappedDateWithWatch] = useState<ISODate | null>(null);
+  const [bottomDisplayDate, setBottomDisplayDate] = useState<ISODate | null>(null);
 
   useEffect(() => {
     saveRecords(records);
@@ -49,7 +51,20 @@ export default function App() {
 
   const handlePickFromGrid = (iso: ISODate) => {
     setViewMonth(startOfMonth(isoToDate(iso)));
-    openSheet(iso);
+    const hasWatch = Boolean(records[iso]);
+    if (!hasWatch) {
+      setLastTappedDateWithWatch(null);
+      setBottomDisplayDate(null);
+      openSheet(iso);
+      return;
+    }
+    if (iso === lastTappedDateWithWatch) {
+      setLastTappedDateWithWatch(null);
+      openSheet(iso);
+      return;
+    }
+    setLastTappedDateWithWatch(iso);
+    setBottomDisplayDate(iso);
   };
 
   const goPrevMonth = () => setViewMonth((m) => startOfMonth(addMonths(m, -1)));
@@ -75,10 +90,11 @@ export default function App() {
               onPickDate={handlePickFromGrid}
               onPrevMonth={goPrevMonth}
               onNextMonth={goNextMonth}
+              bottomDisplayDate={bottomDisplayDate}
             />
 
             <div className="footerHint mutedText">
-              팁: 날짜를 탭하면 바텀시트가 열리고, 선택 즉시 저장됩니다.
+              팁: 빈 날짜는 탭하면 시계 선택. 이미 기록한 날짜는 한 번 탭하면 하단에 표시, 두 번 탭하면 수정.
             </div>
 
             <DayPickerSheet

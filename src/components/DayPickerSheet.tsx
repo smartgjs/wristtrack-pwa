@@ -43,7 +43,10 @@ export function DayPickerSheet({
             value={selectedWatchId ?? ""}
             onChange={(e) => {
               const v = e.target.value;
-              if (v) onSelect(v);
+              if (v) {
+                onSelect(v);
+                onClose();
+              }
             }}
           >
             <option value="">선택하세요…</option>
@@ -60,7 +63,10 @@ export function DayPickerSheet({
                 key={w.id}
                 type="button"
                 className={`quickBtn ${selectedWatchId === w.id ? "active" : ""}`}
-                onClick={() => onSelect(w.id)}
+                onClick={() => {
+                  onSelect(w.id);
+                  onClose();
+                }}
               >
                 <span className="pill">{w.short}</span>
                 <span className="quickName">{w.name}</span>
